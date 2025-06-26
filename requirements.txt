@@ -1,6 +1,6 @@
-flask
+fastapi
+uvicorn[standard]
 pandas
 requests
-beautifulsoup4
-lxml
-gunicorn
+python-dateutil
+pytz
