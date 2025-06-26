@@ -1,29 +1,29 @@
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 from simple_rankings import SimpleMLBRankings
-import pandas as pd
 
+# Create FastAPI app
 app = FastAPI()
 
-# Allow CORS for all domains (safe for now; can restrict later)
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# Initialize rankings generator
+rankings = SimpleMLBRankings()
 
+# Root endpoint to confirm it's live
 @app.get("/")
-def root():
-    return {"message": "Hit Score API is live."}
+def read_root():
+    return {"message": "Hit Score API is live!"}
 
+# Endpoint to get daily rankings
 @app.get("/rankings")
-def get_rankings(limit: int = 25):
-    try:
-        rankings = SimpleMLBRankings().get_rankings()
-        if rankings.empty:
-            return {"error": "No player data available today."}
-        top_players = rankings.head(limit)
-        return top_players.to_dict(orient="records")
-    except Exception as e:
-        return {"error": str(e)}
+def get_rankings():
+    df = rankings.get_rankings(force_refresh=True)
+    top_players = df[[
+        "player_name",
+        "team",
+        "batting_avg",
+        "last_5",
+        "last_10",
+        "last_20",
+        "pitcher_oba",
+        "hit_score"
+    ]].head(25)
+    return top_players.to_dict(orient="records")
