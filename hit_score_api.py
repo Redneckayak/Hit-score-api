@@ -1,28 +1,38 @@
 from flask import Flask, jsonify
-from daily_cache import DailyCacheManager
 
 app = Flask(__name__)
-cache_manager = DailyCacheManager()
 
 @app.route("/")
 def get_hit_scores():
     try:
-        print("Calling DailyCacheManager...")
-        rankings_df = cache_manager.get_complete_rankings()
-
-        if rankings_df is None or rankings_df.empty:
-            print("No data returned.")
-            return jsonify({"error": "No data available"}), 500
-
-        output = rankings_df[[
-            'player_name', 'team_abbr', 'hit_score', 'batting_avg',
-            'last_5_hits', 'last_10_hits', 'last_20_hits',
-            'pitcher_oba', 'batting_order', 'home_away'
-        ]].copy()
-
-        result = output.to_dict(orient="records")
+        print("Returning static test data...")
+        result = [
+            {
+                "player_name": "Shohei Ohtani",
+                "team_abbr": "LAD",
+                "hit_score": 3.4,
+                "batting_avg": 0.328,
+                "last_5_hits": 5,
+                "last_10_hits": 9,
+                "last_20_hits": 18,
+                "pitcher_oba": 0.230,
+                "batting_order": 2,
+                "home_away": "Home"
+            },
+            {
+                "player_name": "Aaron Judge",
+                "team_abbr": "NYY",
+                "hit_score": 3.1,
+                "batting_avg": 0.311,
+                "last_5_hits": 4,
+                "last_10_hits": 8,
+                "last_20_hits": 17,
+                "pitcher_oba": 0.250,
+                "batting_order": 3,
+                "home_away": "Away"
+            }
+        ]
         return jsonify(result)
-
     except Exception as e:
         print("ERROR:", str(e))
         return jsonify({"error": str(e)}), 500
