@@ -2,6 +2,6 @@ fastapi
 pandas
 uvicorn
 gunicorn
-httpx
+requests
 python-dateutil
 pytz
