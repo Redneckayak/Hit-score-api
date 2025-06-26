@@ -1,31 +1,29 @@
-from flask import Flask, jsonify
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from simple_rankings import SimpleMLBRankings
+import pandas as pd
 
-app = Flask(__name__)
+app = FastAPI()
 
-@app.route("/")
-def get_hit_scores():
+# Allow CORS for all domains (safe for now; can restrict later)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+@app.get("/")
+def root():
+    return {"message": "Hit Score API is live."}
+
+@app.get("/rankings")
+def get_rankings(limit: int = 25):
     try:
-        print("Loading real Hit Score data...")
-        rankings_df = SimpleMLBRankings().get_rankings()
-
-        if rankings_df is None or rankings_df.empty:
-            return jsonify({"error": "No data available"}), 500
-
-        output = rankings_df[[
-            'player_name', 'team', 'hit_score', 'batting_avg',
-            'last_5', 'last_10', 'last_20', 'pitcher_oba',
-            'opposing_pitcher', 'position', 'is_home'
-        ]].copy()
-
-        result = output.to_dict(orient="records")
-        return jsonify(result)
-
+        rankings = SimpleMLBRankings().get_rankings()
+        if rankings.empty:
+            return {"error": "No player data available today."}
+        top_players = rankings.head(limit)
+        return top_players.to_dict(orient="records")
     except Exception as e:
-        print("ERROR:", str(e))
-        return jsonify({"error": str(e)}), 500
-
-if __name__ == "__main__":
-    import os
-    port = int(os.environ.get("PORT", 10000))
-    app.run(host="0.0.0.0", port=port)
+        return {"error": str(e)}
