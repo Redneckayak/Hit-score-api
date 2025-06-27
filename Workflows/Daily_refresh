@@ -1,0 +1,13 @@
+name: Daily Hit Score Refresh
+
+on:
+  schedule:
+    - cron: '0 13 * * *'  # Runs daily at 8:00 AM CDT
+  workflow_dispatch:
+
+jobs:
+  ping-api:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Curl the /rankings endpoint
+        run: curl -X GET https://hit-score-api.onrender.com/rankings
