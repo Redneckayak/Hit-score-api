@@ -12,6 +12,11 @@ rankings = SimpleMLBRankings()
 def read_root():
     return {"message": "Hit Score API is live!"}
 
+# ✅ Health check endpoint for Render
+@app.get("/health")
+def health_check():
+    return {"status": "ok"}
+
 # Endpoint to get daily rankings
 @app.get("/rankings")
 def get_rankings():
